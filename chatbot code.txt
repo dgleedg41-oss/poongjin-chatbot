@@ -58,12 +58,12 @@
   </div>
 </div>
 
-<div class="footer">풍진솔루션 취업규칙(2021.10.24 시행) 기반 · 세부 사항은 관리구매팀에 문의하세요</div>
+<div class="footer">풍진솔루션 취업규칙(2021.10.24 시행) 기반 · 세부 사항은 인사팀에 문의하세요</div>
 
 <script>
 // ✅ 여기에 Gemini API 키를 입력하세요
 const API_KEY = "AIzaSyDfFr5GQfptJUigKdFEsCTXESTR6d1o7Jk";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const POLICY = `주식회사 풍진솔루션 취업규칙
 
@@ -134,7 +134,7 @@ const SYSTEM_PROMPT = `당신은 주식회사 풍진솔루션의 취업규칙 �
 
 규칙:
 1. 규정에 있는 내용만 답변하세요.
-2. 없는 내용은 "해당 내용은 취업규칙에서 확인되지 않습니다. 관리구매팀에 문의해 주세요."라고 안내하세요.
+2. 없는 내용은 "해당 내용은 취업규칙에서 확인되지 않습니다. 인사팀에 문의해 주세요."라고 안내하세요.
 3. 관련 조항 번호를 함께 안내하세요.
 4. 친절하고 명확하게 한국어로 답변하세요.
 
