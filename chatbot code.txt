@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>풍진솔루션 취업규칙 안내</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 16px; }
+  .header { width: 100%; max-width: 700px; margin-bottom: 16px; background: linear-gradient(135deg, #1a3a5c, #2563a8); border-radius: 16px; padding: 18px 24px; color: #fff; display: flex; align-items: center; gap: 12px; }
+  .header-icon { font-size: 32px; }
+  .header-title { font-size: 18px; font-weight: 700; }
+  .header-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .status { margin-left: auto; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 12px; font-size: 11px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+  .chat-wrap { width: 100%; max-width: 700px; background: #fff; border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); display: flex; flex-direction: column; height: 520px; overflow: hidden; }
+  .messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+  .msg-row { display: flex; align-items: flex-end; gap: 8px; }
+  .msg-row.user { justify-content: flex-end; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .avatar.bot { background: linear-gradient(135deg,#1a3a5c,#2563a8); }
+  .avatar.user { background: #e2e8f0; }
+  .bubble { max-width: 76%; padding: 11px 16px; font-size: 14px; line-height: 1.65; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .bubble.bot { background: #f4f7fb; color: #1a1a2e; border-radius: 18px 18px 18px 4px; }
+  .bubble.user { background: linear-gradient(135deg,#1a3a5c,#2563a8); color: #fff; border-radius: 18px 18px 4px 18px; }
+  .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .suggestion-btn { background: #fff; border: 1px solid #c7d9f0; border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #2563a8; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .suggestion-btn:hover { background: #ebf2fc; }
+  .typing { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+  .typing span { width: 7px; height: 7px; border-radius: 50%; background: #2563a8; display: inline-block; animation: bounce 1s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+  .input-area { border-top: 1px solid #e8edf5; padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; background: #fafbfd; }
+  textarea { flex: 1; border: 1.5px solid #d1dff0; border-radius: 12px; padding: 10px 14px; font-size: 14px; resize: none; outline: none; font-family: inherit; line-height: 1.5; background: #fff; color: #1a1a2e; }
+  textarea:focus { border-color: #2563a8; }
+  #send { width: 44px; height: 44px; border-radius: 12px; border: none; cursor: pointer; background: linear-gradient(135deg,#1a3a5c,#2563a8); color: #fff; font-size: 18px; flex-shrink: 0; transition: opacity 0.2s; }
+  #send:disabled { background: #d1dff0; cursor: not-allowed; }
+  .footer { margin-top: 10px; font-size: 12px; color: #94a3b8; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🏢</div>
+  <div>
+    <div class="header-title">풍진솔루션 취업규칙 안내</div>
+    <div class="header-sub">취업규칙 기반 · 24시간 문의 가능</div>
+  </div>
+  <div class="status"><div class="dot"></div> 온라인</div>
+</div>
+
+<div class="chat-wrap">
+  <div class="messages" id="messages"></div>
+  <div class="input-area">
+    <textarea id="input" rows="1" placeholder="취업규칙에 대해 궁금한 점을 질문해 주세요..."></textarea>
+    <button id="send">➤</button>
+  </div>
+</div>
+
+<div class="footer">풍진솔루션 취업규칙(2021.10.24 시행) 기반 · 세부 사항은 인사팀에 문의하세요</div>
+
+<script>
+// ✅ 여기에 Gemini API 키를 입력하세요
+const API_KEY = "AIzaSyDfFr5GQfptJUigKdFEsCTXESTR6d1o7Jk";
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+const POLICY = `주식회사 풍진솔루션 취업규칙
+
+제1장 총칙
+제1조(목적) 이 규칙은 주식회사 풍진솔루션 사원의 채용·복무 및 근로조건에 관한 사항을 정함을 목적으로 한다.
+제3조(사원의 정의) 무기계약사원과 기간제사원을 의미하며, 관리감독자, 차량운전기사, 생산종사자, 인사·노무·경리 업무담당자를 포함한다.
+
+제2장 채용 및 근로계약
+제4조(채용기회) 성별, 연령, 출신지역 등에 의한 차등을 두지 않는다.
+제5조(채용서류) 자필이력서, 자기소개서, 주민등록등본 각 1통.
+제7조(수습기간) 최초 근무일부터 3개월. 근속년수에 포함.
+
+제3장 복무
+제9조(출근·결근) 결근 시 사전 승인 필요. 3일 이상 결근 시 진단서 제출.
+제10조(지각·조퇴·외출) 소속부서 장의 승인 필요. 해당 시간 무급 처리(누계 8시간=연가 1일).
+제12조(출장) 회사 명령 시 여비·숙박비 등 실비 지급.
+
+제4장 인사
+제17조(휴직) 업무 외 질병·부상: 1개월 이내 무급. 병역: 징집기간. 회사 연수: 필요 기간.
+제18조(육아휴직) 만 8세 이하 자녀 보유 남녀 사원, 최대 1년. 계속근로 6개월 미만 제외 가능.
+제20조(근속기간) 휴직기간 근속기간 산입. 군복무기간은 퇴직금 산정 시 제외.
+
+제5장 근로조건
+제22조(근로시간) 주 5일(월~금), 주 40시간, 1일 8시간(08:30~17:30). 토요일 무급휴무.
+제23조(휴게) 12:30~13:30.
+제24조(육아시간) 생후 1년 미만 유아를 가진 여성 사원: 1일 2회 각 30분 유급 수유시간.
+제25조(연장·야간·휴일근로) 주 최대 12시간 연장 가능. 통상임금 50% 가산. 8시간 초과 휴일근로는 100% 가산.
+제28조(유급휴일) 일요일(유급주휴일), 근로자의 날(5/1), 관공서 공휴일·대체공휴일.
+제29조(연차휴가) 1년 80% 이상 출근 시 15일. 3년 이상 매 2년마다 1일 가산(최대 25일). 1년 미만은 월 1일.
+제30조(연차 사용) 사용 3일 전 승인 필요. 1년 미사용 시 소멸.
+제32조(하기휴가) 7/15~8/15 사이. 연차에서 차감.
+제33조(경조사 휴가) 본인결혼 5일 / 자녀·형제자매결혼 1일 / 배우자·부모·시부모 사망 5일 / 조부모·형제자매 사망 2일 / 배우자출산 10일.
+제34조(생리휴가) 여성 사원 청구 시 월 1일 무급.
+제35조(임산부보호) 출산 전후 90일(쌍둥이 120일) 보호휴가. 임신 중 연장근로 금지.
+제36조(병가) 연간 30일 이내 무급. 1주 이상 결근 시 진단서 필요.
+
+제6장 임금
+제37조(임금구성) 기본급+직책수당(통상임금)+법정수당. 시간급=월통상임금÷209시간. 임금조정 매년 4월 1일.
+제38조(지급) 매월 1일~말일 산정, 익월 17일 지급(공휴일 시 익일). 계좌 입금.
+제41조(상여금) 경영성과에 따라 지급 가능.
+
+제7장 퇴직·해고
+제42조(퇴직) 사직원 퇴직일 15일 이내 제출. 회사는 30일 내 퇴직일 지정 가능.
+제44조(해고 제한) 업무상 요양 중 및 후 30일, 산전·산후 휴업 중 및 후 30일 해고 불가.
+제45조(해고 통지) 30일 전 서면 예고 또는 30일분 통상임금 지급.
+제47조(정년) 만 60세.
+
+제8장 퇴직급여
+제48조(퇴직금) 1년 이상 근무 시 근속 1년당 평균임금 30일분.
+제49조(중간정산) 주택구입, 전세금, 6개월 이상 요양 필요 질병 등 사유 시 가능.
+
+제9장 표창 및 징계
+제51조(징계 사유) 비밀 누설, 명예 손상, 복무규정 위반, 성희롱, 무단결근 3일 이상(월 7일 이상), 직장 내 괴롭힘 등.
+제52조(징계 종류) 견책 / 감봉(월급여 1/10 이내) / 정직(3개월 이내 무급) / 해고.
+
+제10장 교육 및 성희롱·괴롭힘 예방
+제54조(성희롱 예방) 연 1회 이상 예방교육. 행위자 해고 등 징계 및 인사이동.
+제55~58조(직장 내 괴롭힘) 금지 및 신고 시 즉시 조사. 피해자 보호. 행위자 징계. 연 1회 1시간 예방교육.
+
+제11장 안전보건
+제63조(건강진단) 매년 1회(사무직 2년 1회) 일반건강진단 실시.
+
+제12장 재해보상
+제65조(재해보상) 업무상 부상·질병·사망은 산업재해보상보험법에 의해 보상.`;
+
+const SYSTEM_PROMPT = `당신은 주식회사 풍진솔루션의 취업규칙 안내 전문 챗봇입니다.
+아래 취업규칙만을 근거로 직원 질문에 답변하세요.
+
+규칙:
+1. 규정에 있는 내용만 답변하세요.
+2. 없는 내용은 "해당 내용은 취업규칙에서 확인되지 않습니다. 인사팀에 문의해 주세요."라고 안내하세요.
+3. 관련 조항 번호를 함께 안내하세요.
+4. 친절하고 명확하게 한국어로 답변하세요.
+
+--- 풍진솔루션 취업규칙 ---
+${POLICY}
+--- 끝 ---`;
+
+const SUGGESTED = ["연차휴가는 며칠인가요?","근로시간이 어떻게 되나요?","경조사 휴가 규정이 궁금해요","퇴직금은 어떻게 계산되나요?","육아휴직 신청 조건이 뭔가요?","임금은 언제 지급되나요?"];
+
+let history = [];
+const msgEl = document.getElementById("messages");
+const inputEl = document.getElementById("input");
+const sendBtn = document.getElementById("send");
+
+function addMessage(role, content) {
+  const row = document.createElement("div");
+  row.className = "msg-row " + role;
+  const avatar = document.createElement("div");
+  avatar.className = "avatar " + (role === "bot" ? "bot" : "user");
+  avatar.textContent = role === "bot" ? "🤖" : "👤";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble " + (role === "bot" ? "bot" : "user");
+  bubble.innerHTML = content.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>");
+  if (role === "bot") { row.appendChild(avatar); row.appendChild(bubble); }
+  else { row.appendChild(bubble); row.appendChild(avatar); }
+  msgEl.appendChild(row);
+  msgEl.scrollTop = msgEl.scrollHeight;
+}
+
+function addTyping() {
+  const row = document.createElement("div");
+  row.className = "msg-row bot"; row.id = "typing";
+  const avatar = document.createElement("div");
+  avatar.className = "avatar bot"; avatar.textContent = "🤖";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble bot";
+  bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  row.appendChild(avatar); row.appendChild(bubble);
+  msgEl.appendChild(row);
+  msgEl.scrollTop = msgEl.scrollHeight;
+}
+
+function addSuggestions() {
+  const wrap = document.createElement("div");
+  wrap.className = "suggestions";
+  SUGGESTED.forEach(q => {
+    const btn = document.createElement("button");
+    btn.className = "suggestion-btn"; btn.textContent = q;
+    btn.onclick = () => { wrap.remove(); send(q); };
+    wrap.appendChild(btn);
+  });
+  msgEl.appendChild(wrap);
+  msgEl.scrollTop = msgEl.scrollHeight;
+}
+
+async function send(text) {
+  const msg = (text || inputEl.value).trim();
+  if (!msg) return;
+  inputEl.value = "";
+  sendBtn.disabled = true;
+  addMessage("user", msg);
+  history.push({ role: "user", parts: [{ text: msg }] });
+  addTyping();
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: history
+      })
+    });
+    const data = await res.json();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "응답을 받을 수 없습니다.";
+    document.getElementById("typing")?.remove();
+    addMessage("bot", reply);
+    history.push({ role: "model", parts: [{ text: reply }] });
+  } catch {
+    document.getElementById("typing")?.remove();
+    addMessage("bot", "오류가 발생했습니다. API 키를 확인하거나 잠시 후 다시 시도해 주세요.");
+  }
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+sendBtn.onclick = () => send();
+inputEl.addEventListener("keydown", e => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); send(); } });
+
+addMessage("bot", "안녕하세요! 👋 저는 **풍진솔루션 취업규칙 안내 챗봇**입니다.\n\n취업규칙에 관한 궁금한 사항을 자유롭게 질문해 주세요.");
+addSuggestions();
+</script>
+</body>
+</html>
